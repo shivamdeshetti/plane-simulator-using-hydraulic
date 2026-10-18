@@ -3,46 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title> NK ORCHID HYDRAULIC AIRPLANE SIM</title>
+<title>Aircraft Hydraulic Simulator</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#eef1f5;color:#1d2733}
-header{padding:10px 14px;background:#12263f;color:#fff;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-header h1{font-size:17px;margin:0 12px 0 0;font-weight:600}
-button{padding:7px 12px;border:0;border-radius:6px;background:#2a6fdb;color:#fff;font-size:13px;cursor:pointer}
+html,body{height:100%}
+body{margin:0;font-family:Arial,sans-serif;background:#eef1f5;color:#1d2733;display:flex;flex-direction:column;overflow:hidden}
+header{flex:none;padding:8px 12px;background:#12263f;color:#fff;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+header h1{font-size:16px;margin:0 10px 0 0;font-weight:600}
+button{padding:6px 11px;border:0;border-radius:6px;background:#2a6fdb;color:#fff;font-size:13px;cursor:pointer}
 button:hover{opacity:.85}
 button.go{background:#1f9d62}button.warn{background:#d9542b}button.alt{background:#5b6b7e}
-.grid{display:grid;grid-template-columns:1.15fr 1fr;gap:10px;padding:10px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.layout{flex:1;min-height:0;display:grid;grid-template-rows:minmax(240px,1fr) minmax(0,2fr);gap:8px;padding:8px}
+.top{min-height:0;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px}
 .card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.15);overflow:hidden;position:relative}
-.pad{padding:10px 12px}
-#view{height:460px;cursor:grab}
+.vc{min-height:0}
+#view{position:absolute;top:0;left:0;right:0;bottom:0;cursor:grab}
+#view canvas{display:block}
 #hud{position:absolute;left:10px;top:8px;font:12px/1.5 monospace;background:rgba(255,255,255,.85);padding:6px 8px;border-radius:6px;pointer-events:none}
 #toast{position:absolute;right:10px;top:8px;background:#d9542b;color:#fff;font-size:12px;padding:5px 9px;border-radius:6px;display:none}
+.side{min-height:0;overflow:auto;padding:8px 12px}
 #phase{font-size:16px;font-weight:700}
-#note{font-size:13px;color:#4a5a6b;margin:4px 0 8px}
-#now{font-size:13px;margin-bottom:8px;font-weight:600}
-#chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-@media(max-width:600px){#chips{grid-template-columns:repeat(2,1fr)}}
-.chip{border:1px solid #d5dbe3;border-radius:8px;padding:6px;font-size:12px}
-.chip.on{background:#fff0e0;border-color:#ff8a2a}
-.chip .bar{height:6px;background:#e3e8ef;border-radius:3px;margin:4px 0}
-.chip .bar b{display:block;height:6px;border-radius:3px}
-.chip i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
-.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:13px;margin-bottom:10px}
-#info{font-size:13px;background:#f4f7fb;border-radius:8px;padding:8px 10px;min-height:64px}
+#note{font-size:12px;color:#4a5a6b;margin:3px 0 5px}
+#now{font-size:13px;margin-bottom:6px;font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:13px;margin-bottom:6px}
+#info{font-size:13px;background:#f4f7fb;border-radius:8px;padding:6px 10px}
+#ckts{min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px}
+.cc{display:flex;flex-direction:column;min-height:0;padding:4px 6px;border:2px solid transparent}
+.cc.on{border-color:#ff8a2a;background:#fffaf4}
+.ch{flex:none;display:flex;gap:6px;align-items:center;font-size:13px;white-space:nowrap}
+.ch i{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.ch span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:#5b6b7e;font-size:11px}
+.ch em{flex:none;font-style:normal;font-size:11px;background:#e3e8ef;border-radius:10px;padding:1px 8px}
+.cc.on .ch em{background:#ff8a2a;color:#fff}
+.bar{flex:none;height:4px;background:#e3e8ef;border-radius:3px;margin:3px 0}
+.bar b{display:block;height:4px;border-radius:3px}
+.sv{flex:1;min-height:0;position:relative}
+.sv svg{position:absolute;top:0;left:0;width:100%;height:100%}
 svg text{font-family:Arial,sans-serif}
-.t{font-size:12px;fill:#1d2733}.th{font-size:13px;font-weight:600;fill:#12263f}
+.t{font-size:16px;fill:#1d2733}.th{font-size:16px;font-weight:600;fill:#12263f}
 .nd{cursor:pointer}.nd:hover{opacity:.7}
 .pl{fill:none;stroke-width:2.2}.hp{stroke:#d85a30}.lp{stroke:#378add}
 .fl{stroke-dasharray:7 5;animation:dash .5s linear infinite}
 .fl.rev{animation-direction:reverse}
+body.paused .fl{animation-play-state:paused}
+#ptag{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:#d9542b;color:#fff;font-weight:700;letter-spacing:2px;padding:4px 14px;border-radius:6px;display:none;pointer-events:none}
 @keyframes dash{to{stroke-dashoffset:-12}}
+@media(max-width:900px){
+body{overflow:auto;height:auto;display:block}
+.layout{display:block}.top{display:block}
+.vc{height:300px;margin-bottom:8px}
+#ckts{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;margin-top:8px}
+.sv{flex:none;height:auto}.sv svg{position:static;height:auto}
+}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute"><defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#333" stroke-width="1.5"/></marker></defs></svg>
 <header>
-<h1> NK ORCHID HYDRAULIC AIRPLANE SIM</h1>
+<h1>Aircraft Hydraulic Simulator</h1>
 <button class="go" onclick="takeoff()">Take off</button>
 <button onclick="climb(6)">Climb</button>
 <button onclick="descend(5)">Descend</button>
@@ -51,64 +69,27 @@ svg text{font-family:Arial,sans-serif}
 <button class="warn" onclick="land()">Land</button>
 <button class="alt" onclick="startDemo()">Auto demo</button>
 <button class="alt" onclick="resetSim()">Reset</button>
+<button class="warn" id="pauseBtn" onclick="togglePause()">Pause</button>
 <button class="alt" id="muteBtn" onclick="toggleSound()">Sound: ON</button>
+<button class="alt" onclick="toggleFS()">Fullscreen</button>
 </header>
 
-<div class="grid">
-<div class="card"><div id="view"></div><div id="hud"></div><div id="toast"></div></div>
-<div class="card pad">
-<svg id="ckt" viewBox="0 0 680 500" width="100%">
-<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#333" stroke-width="1.5"/></marker></defs>
-<g data-i="res" class="nd"><rect x="40" y="410" width="600" height="40" rx="4" fill="#e3f0fc" stroke="#378add"/><rect id="resLevel" x="41" y="425" width="598" height="24" fill="#85b7eb" opacity=".7"/><text class="th" x="340" y="430" text-anchor="middle" dominant-baseline="central">Reservoir (oil tank)</text></g>
-<path id="pSuc" class="pl lp" d="M80 410 L80 382"/>
-<path id="pRelOut" class="pl lp" d="M200 385 L200 410"/>
-<path id="pT" class="pl lp" d="M425 290 L425 410"/>
-<path id="pPump" class="pl hp" d="M80 338 L80 320 L251 320"/>
-<path class="pl hp" d="M130 320 L130 268"/>
-<path id="pRel" class="pl hp" d="M200 320 L200 345"/>
-<path id="pP" class="pl hp" d="M269 320 L395 320 L395 292" marker-end="url(#ah)"/>
-<path id="pA1" class="pl hp" d="M395 240 L395 190 L330 190 L330 155"/>
-<path id="pA2" class="pl hp" d="M330 125 L330 90"/>
-<path id="pB" class="pl hp" d="M425 240 L425 150 L450 150 L450 92"/>
-
-<g data-i="pump" class="nd"><circle id="pumpC" cx="80" cy="360" r="22" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><polygon points="80,347 72,368 88,368" fill="#333"/><text id="txtP" class="t" x="110" y="360" dominant-baseline="central">Pump ON</text></g>
-<g data-i="gauge" class="nd"><circle cx="130" cy="252" r="16" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><line id="needle" x1="130" y1="252" x2="130" y2="242" stroke="#d9542b" stroke-width="2"/><circle cx="130" cy="252" r="2" fill="#333"/><text id="txtG" class="t" x="130" y="222" text-anchor="middle" dominant-baseline="central">Pressure 0 bar</text></g>
-<g data-i="relief" class="nd"><rect id="relBox" x="180" y="345" width="40" height="40" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><line x1="200" y1="380" x2="200" y2="352" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/><path d="M220 365 L224 365 L227 358 L231 372 L234 358 L238 372 L241 365 L245 365" fill="none" stroke="#333"/><text class="t" x="254" y="365" dominant-baseline="central">Relief valve</text></g>
-<g data-i="check" class="nd"><circle cx="260" cy="320" r="9" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><circle cx="257" cy="320" r="3.5" fill="#333"/><path d="M265 314 L269 320 L265 326" fill="none" stroke="#333" stroke-width="1.2"/><text id="txtK" class="t" x="260" y="300" text-anchor="middle" dominant-baseline="central">Check valve</text></g>
-<g data-i="dcv" class="nd">
-<rect id="sqL" x="320" y="240" width="60" height="50" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/>
-<rect id="sqC" x="380" y="240" width="60" height="50" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/>
-<rect id="sqR" x="440" y="240" width="60" height="50" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/>
-<line x1="340" y1="285" x2="340" y2="245" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/><line x1="360" y1="245" x2="360" y2="285" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/>
-<line x1="450" y1="285" x2="490" y2="245" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/><line x1="490" y1="285" x2="450" y2="245" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/>
-<path d="M395 240 L395 252 M389 252 L401 252 M425 240 L425 252 M419 252 L431 252 M395 290 L395 278 M389 278 L401 278 M425 290 L425 278 M419 278 L431 278" fill="none" stroke="#333" stroke-width="1.2"/>
-<rect x="304" y="258" width="16" height="14" fill="#f4f6f8" stroke="#444"/><path d="M500 265 L504 265 L507 258 L511 272 L514 258 L518 272 L521 265 L525 265" fill="none" stroke="#333"/>
-<text class="t" x="296" y="258" text-anchor="end" dominant-baseline="central">Direction control</text><text class="t" x="296" y="276" text-anchor="end" dominant-baseline="central">valve 4/3 (lever)</text>
-<text class="t" x="383" y="230" text-anchor="middle">A</text><text class="t" x="437" y="230" text-anchor="middle">B</text><text class="t" x="383" y="304" text-anchor="middle">P</text><text class="t" x="437" y="304" text-anchor="middle">T</text>
-<text class="t" x="350" y="308" text-anchor="middle">Extend</text><text class="t" x="470" y="308" text-anchor="middle">Retract</text></g>
-<g data-i="fcv" class="nd"><rect x="318" y="125" width="24" height="30" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><line x1="316" y1="160" x2="344" y2="120" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/><text id="txtF" class="t" x="306" y="140" text-anchor="end" dominant-baseline="central">Flow control valve</text></g>
-<g data-i="cyl" class="nd"><rect x="300" y="50" width="180" height="40" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><line id="pist" x1="390" y1="50" x2="390" y2="90" stroke="#333" stroke-width="3"/><line id="rod" x1="390" y1="70" x2="565" y2="70" stroke="#333" stroke-width="4"/><rect id="rodEnd" x="565" y="62" width="8" height="16" fill="#f4f6f8" stroke="#444"/><text id="txtC" class="t" x="390" y="34" text-anchor="middle" dominant-baseline="central">Cylinder</text></g>
-<line x1="40" y1="478" x2="70" y2="478" stroke="#d85a30" stroke-width="2.2"/><text class="t" x="78" y="478" dominant-baseline="central">Pressure / working line</text>
-<line x1="270" y1="478" x2="300" y2="478" stroke="#378add" stroke-width="2.2"/><text class="t" x="308" y="478" dominant-baseline="central">Suction / return line</text>
-</svg>
-</div>
-</div>
-
-<div class="grid" style="padding-top:0">
-<div class="card pad">
+<div class="layout">
+<div class="top">
+<div class="card vc"><div id="view"></div><div id="hud"></div><div id="toast"></div><div id="ptag">PAUSED</div></div>
+<div class="card side">
 <div id="phase">Parked</div>
 <div id="note"></div>
 <div id="now"></div>
-<div id="chips"></div>
-</div>
-<div class="card pad">
 <div class="row">
 <label><input type="checkbox" id="pumpSw" checked> Pump ON</label>
 <label>Flow control (speed) <input type="range" id="flowSl" min="0.3" max="2" step="0.1" value="1"></label>
 <label>Sim speed <select id="spdSel"><option value="1">1x</option><option value="2">2x</option><option value="4">4x</option></select></label>
 </div>
-<div id="info">Click any component in the circuit to see what it does. Drag the 3D view to rotate, scroll to zoom.</div>
+<div id="info">Orange line = pressure line, blue line = suction / return line. The circuit that is working gets an orange border. Click any component to see what it does.</div>
 </div>
+</div>
+<div id="ckts"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -131,6 +112,8 @@ scene.add(new THREE.HemisphereLight(0xffffff,0x4a6b3a,0.95));
 const sun=new THREE.DirectionalLight(0xffffff,0.8);sun.position.set(200,400,150);scene.add(sun);
 function resize(){const w=view.clientWidth,h=view.clientHeight;renderer.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix();}
 addEventListener('resize',resize);
+if(window.ResizeObserver)new ResizeObserver(resize).observe(view);
+function toggleFS(){if(document.fullscreenElement)document.exitFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
 
 const mat=c=>new THREE.MeshLambertMaterial({color:c});
 const sm=c=>new THREE.MeshLambertMaterial({color:c,emissive:0x000000});
@@ -192,43 +175,101 @@ addEventListener('pointerup',()=>drag=false);
 addEventListener('pointermove',e=>{if(!drag)return;camA-=(e.clientX-lx)*0.008;camE=clamp(camE+(e.clientY-ly)*0.006,-0.1,1.4);lx=e.clientX;ly=e.clientY;});
 view.addEventListener('wheel',e=>{e.preventDefault();camR=clamp(camR*(1+e.deltaY*0.001),25,300);},{passive:false});
 
-/* ---------- Hydraulic actuators ---------- */
+/* ---------- Hydraulic actuators (each one gets its own circuit window) ---------- */
 const A={
-  gear :{n:'Landing gear',   v:1,t:1,s:0.25,r:[0,1], d0:1,m:mGear, col:'#999999'},
-  flaps:{n:'Flaps',          v:0,t:0,s:0.3, r:[0,1], d0:0,m:mFlap, col:'#4f8dff'},
-  spoil:{n:'Spoilers',       v:0,t:0,s:1.2, r:[0,1], d0:0,m:mSpoil,col:'#ffd34d'},
-  rev  :{n:'Thrust reverser',v:0,t:0,s:1,   r:[0,1], d0:0,m:mRev,  col:'#bbbbbb'},
-  brake:{n:'Wheel brakes',   v:1,t:1,s:2,   r:[0,1], d0:1,m:mBrake,col:'#d9542b'},
-  ail  :{n:'Ailerons',       v:0,t:0,s:1.5, r:[-1,1],d0:0,m:mAil,  col:'#ff9d4d'},
-  rud  :{n:'Rudder',         v:0,t:0,s:1.5, r:[-1,1],d0:0,m:mRud,  col:'#3fc980'},
-  elev :{n:'Elevator',       v:0,t:0,s:1.5, r:[-1,1],d0:0,m:mElev, col:'#c070ff'}
+  gear :{n:'Landing gear',   use:'Extends / retracts the wheels',        v:1,t:1,s:0.25,r:[0,1], d0:1,m:mGear, col:'#999999'},
+  flaps:{n:'Flaps',          use:'More lift at take-off and landing',    v:0,t:0,s:0.3, r:[0,1], d0:0,m:mFlap, col:'#4f8dff'},
+  spoil:{n:'Spoilers',       use:'Dump lift after touchdown',            v:0,t:0,s:1.2, r:[0,1], d0:0,m:mSpoil,col:'#e0b000'},
+  rev  :{n:'Thrust reverser',use:'Slows the plane on the runway',        v:0,t:0,s:1,   r:[0,1], d0:0,m:mRev,  col:'#888888'},
+  brake:{n:'Wheel brakes',   use:'Brake cylinders (applied = piston out)',v:1,t:1,s:2,  r:[0,1], d0:1,m:mBrake,col:'#d9542b'},
+  ail  :{n:'Ailerons',       use:'Roll the wings for turns',             v:0,t:0,s:1.5, r:[-1,1],d0:0,m:mAil,  col:'#ff9d4d'},
+  rud  :{n:'Rudder',         use:'Yaw: direction control',               v:0,t:0,s:1.5, r:[-1,1],d0:0,m:mRud,  col:'#3fc980'},
+  elev :{n:'Elevator',       use:'Pitch: climb and descend',             v:0,t:0,s:1.5, r:[-1,1],d0:0,m:mElev, col:'#c070ff'}
 };
 const ORDER=['gear','flaps','spoil','rev','brake','ail','rud','elev'];
-const chipsEl=$('chips');
-ORDER.forEach(k=>chipsEl.insertAdjacentHTML('beforeend','<div class="chip" id="c_'+k+'"><div><i style="background:'+A[k].col+'"></i>'+A[k].n+'</div><div class="bar"><b style="background:'+A[k].col+'"></b></div><small>locked</small></div>'));
+ORDER.forEach(k=>{A[k].rel=0;A[k].hu=0;A[k].P=0;A[k].mv=false;});
 const posN=a=>(a.v-a.r[0])/(a.r[1]-a.r[0]);
 
 const NOTES={
   parked:'Parked: brakes are applied and the gear is down. The check valve and the neutral DCV keep every actuator locked.',
   takeoff:'Take-off: flaps extend, brakes release, elevator lifts the nose at rotation, then the landing gear retracts.',
   flight:'Flight: elevator controls height, ailerons + rudder control direction. All are driven by hydraulic actuators.',
-  landing:'Landing: gear and flaps extend, then spoilers, brakes and thrust reverser slow the aircraft on the runway.'
+  landing:'Landing: gear and flaps extend only when the aircraft is close to the runway, then spoilers, brakes and thrust reverser slow it down.'
 };
 const INFO={
-  res:['Reservoir','Stores the hydraulic oil, supplies the pump and receives the return oil. Its level changes a little as cylinders move.'],
+  res:['Reservoir','Stores the hydraulic oil, supplies the pump and receives the return oil. Its level changes a little as the cylinder moves.'],
   pump:['Pump','Converts engine or motor power into oil flow and pressure (about 200 bar in aircraft). Switch it OFF and nothing can move.'],
   gauge:['Pressure gauge','Shows system pressure so you can see the pump and relief valve are working.'],
   relief:['Pressure relief valve','Opens when pressure crosses the set limit (for example at the end of a cylinder stroke) and sends oil back to the tank to protect the pipes.'],
   check:['Check valve','Lets oil flow only towards the actuator. If the pump stops, it traps the oil so the gear and control surfaces stay where they are.'],
   dcv:['4/3 direction control valve','Left position: oil to the cap side, cylinder extends. Right position: oil to the rod side, cylinder retracts. Centre: all ports blocked, cylinder holds.'],
-  fcv:['Flow control valve','Throttles the oil flow, so it decides how fast the actuator moves. Use the slider to make the gear and flaps faster or slower.'],
-  cyl:['Double acting cylinder','Oil pushes the piston in both directions. In an aircraft the same type of cylinder moves gear, flaps, spoilers, brakes and control surfaces.']
+  fcv:['Flow control valve','Throttles the oil flow, so it decides how fast the actuator moves. Use the slider to make the actuators faster or slower.'],
+  cyl:['Double acting cylinder','Oil pushes the piston in both directions. In an aircraft this type of cylinder moves gear, flaps, spoilers, brakes and control surfaces.']
 };
-document.querySelectorAll('[data-i]').forEach(g=>g.addEventListener('click',()=>{const i=INFO[g.dataset.i];$('info').innerHTML='<b>'+i[0]+'</b><br>'+i[1];}));
+addEventListener('click',e=>{
+  const g=e.target.closest?e.target.closest('[data-i]'):null;
+  if(g&&INFO[g.dataset.i]){const i=INFO[g.dataset.i];$('info').innerHTML='<b>'+i[0]+'</b><br>'+i[1];}
+});
+
+/* ---------- Build one separate circuit per actuator ---------- */
+function makeCircuit(k){
+  const p=n=>k+'_'+n;
+  return '<svg viewBox="0 0 680 380" width="100%">'+
+  '<g data-i="res" class="nd"><rect x="20" y="345" width="640" height="27" rx="4" fill="#e3f0fc" stroke="#378add"/><rect id="'+p('resLevel')+'" x="21" y="358" width="638" height="13" fill="#85b7eb" opacity=".7"/><text class="th" x="340" y="359" text-anchor="middle" dominant-baseline="central">Reservoir (oil tank)</text></g>'+
+  '<path id="'+p('pSuc')+'" class="pl lp" d="M50 345 L50 318"/>'+
+  '<path id="'+p('pRelOut')+'" class="pl lp" d="M170 302 L170 345"/>'+
+  '<path id="'+p('pT')+'" class="pl lp" d="M435 194 L435 345"/>'+
+  '<path id="'+p('pPump')+'" class="pl hp" d="M50 282 L50 255 L262 255"/>'+
+  '<path class="pl hp" d="M95 255 L95 218"/>'+
+  '<path id="'+p('pRel')+'" class="pl hp" d="M170 255 L170 272"/>'+
+  '<path id="'+p('pP')+'" class="pl hp" d="M278 255 L405 255 L405 196" marker-end="url(#ah)"/>'+
+  '<path id="'+p('pA1')+'" class="pl hp" d="M405 150 L405 132 L320 132 L320 114"/>'+
+  '<path id="'+p('pA2')+'" class="pl hp" d="M320 84 L320 60"/>'+
+  '<path id="'+p('pB')+'" class="pl hp" d="M435 150 L435 60"/>'+
+  '<g data-i="pump" class="nd"><circle id="'+p('pumpC')+'" cx="50" cy="300" r="18" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><polygon points="50,288 43,306 57,306" fill="#333"/><text id="'+p('txtP')+'" class="t" x="76" y="300" dominant-baseline="central">Pump ON</text></g>'+
+  '<g data-i="gauge" class="nd"><circle cx="95" cy="204" r="14" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><line id="'+p('needle')+'" x1="95" y1="204" x2="95" y2="195" stroke="#d9542b" stroke-width="2"/><circle cx="95" cy="204" r="2" fill="#333"/><text id="'+p('txtG')+'" class="t" x="115" y="204" dominant-baseline="central">Pressure 0 bar</text></g>'+
+  '<g data-i="relief" class="nd"><rect id="'+p('relBox')+'" x="155" y="272" width="30" height="30" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><line x1="170" y1="297" x2="170" y2="278" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/><path d="M185 287 L188 287 L190 281 L194 293 L197 281 L200 293 L202 287 L205 287" fill="none" stroke="#333"/><text class="t" x="212" y="287" dominant-baseline="central">Relief valve</text></g>'+
+  '<g data-i="check" class="nd"><circle cx="270" cy="255" r="9" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><circle cx="267" cy="255" r="3.5" fill="#333"/><path d="M275 249 L279 255 L275 261" fill="none" stroke="#333" stroke-width="1.2"/><text id="'+p('txtK')+'" class="t" x="270" y="235" text-anchor="middle" dominant-baseline="central">Check valve</text></g>'+
+  '<g data-i="dcv" class="nd">'+
+  '<rect id="'+p('sqL')+'" x="330" y="150" width="60" height="44" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/>'+
+  '<rect id="'+p('sqC')+'" x="390" y="150" width="60" height="44" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/>'+
+  '<rect id="'+p('sqR')+'" x="450" y="150" width="60" height="44" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/>'+
+  '<line x1="350" y1="189" x2="350" y2="155" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/><line x1="370" y1="155" x2="370" y2="189" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/>'+
+  '<line x1="460" y1="189" x2="500" y2="155" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/><line x1="500" y1="189" x2="460" y2="155" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/>'+
+  '<path d="M405 150 L405 161 M399 161 L411 161 M435 150 L435 161 M429 161 L441 161 M405 194 L405 183 M399 183 L411 183 M435 194 L435 183 M429 183 L441 183" fill="none" stroke="#333" stroke-width="1.2"/>'+
+  '<rect x="314" y="165" width="16" height="14" fill="#f4f6f8" stroke="#444"/><path d="M510 172 L514 172 L517 165 L521 179 L524 165 L528 179 L531 172 L535 172" fill="none" stroke="#333"/>'+
+  '<text class="t" x="306" y="165" text-anchor="end" dominant-baseline="central">Direction control</text><text class="t" x="306" y="183" text-anchor="end" dominant-baseline="central">valve 4/3 (lever)</text>'+
+  '<text class="t" x="395" y="142" text-anchor="middle">A</text><text class="t" x="445" y="142" text-anchor="middle">B</text><text class="t" x="393" y="212" text-anchor="middle">P</text><text class="t" x="447" y="212" text-anchor="middle">T</text>'+
+  '<text class="t" x="350" y="212" text-anchor="middle">Extend</text><text class="t" x="490" y="212" text-anchor="middle">Retract</text></g>'+
+  '<g data-i="fcv" class="nd"><rect x="308" y="84" width="24" height="30" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><line x1="306" y1="119" x2="334" y2="79" stroke="#333" stroke-width="1.2" marker-end="url(#ah)"/><text id="'+p('txtF')+'" class="t" x="300" y="99" text-anchor="end" dominant-baseline="central">Flow control valve</text></g>'+
+  '<g data-i="cyl" class="nd"><rect x="290" y="24" width="180" height="34" fill="#f4f6f8" stroke="#444" stroke-width="1.2"/><line id="'+p('pist')+'" x1="300" y1="24" x2="300" y2="58" stroke="#333" stroke-width="3"/><line id="'+p('rod')+'" x1="300" y1="41" x2="485" y2="41" stroke="#333" stroke-width="4"/><rect id="'+p('rodEnd')+'" x="485" y="34" width="8" height="14" fill="#f4f6f8" stroke="#444"/><text class="t" x="380" y="10" text-anchor="middle" dominant-baseline="central">Double acting cylinder: '+A[k].n+'</text></g>'+
+  '</svg>';
+}
+const NAMES=['pSuc','pRelOut','pT','pPump','pRel','pP','pA1','pA2','pB','sqL','sqC','sqR','pist','rod','rodEnd','needle','txtG','txtP','txtF','txtK','relBox','pumpC','resLevel'];
+const E={};
+ORDER.forEach(k=>{
+  $('ckts').insertAdjacentHTML('beforeend','<div class="card cc" id="card_'+k+'"><div class="ch" title="'+A[k].use+'"><i style="background:'+A[k].col+'"></i><b>'+A[k].n+'</b><span>'+A[k].use+'</span><em id="badge_'+k+'">locked</em></div><div class="bar"><b id="bar_'+k+'" style="background:'+A[k].col+'"></b></div><div class="sv">'+makeCircuit(k)+'</div></div>');
+  E[k]={card:$('card_'+k),badge:$('badge_'+k),bar:$('bar_'+k)};
+  NAMES.forEach(n=>E[k][n]=$(k+'_'+n));
+});
 
 /* ---------- Simulation state ---------- */
-const S={x:-60,y:5.9,z:0,h:0,pitch:0,roll:0,spd:0,vr:70,ground:true,mode:'parked',climbT:0,descT:0,turnT:0,turnDir:0,final:false,stopped:false,pump:true,flow:1,tscale:1,P:0,reliefT:0,cur:'gear',toastT:0};
+const S={x:-60,y:5.9,z:0,h:0,pitch:0,roll:0,spd:0,vr:70,ground:true,mode:'parked',climbT:0,descT:0,turnT:0,turnDir:0,final:false,stopped:false,pump:true,flow:1,tscale:1,P:0,reliefT:0,toastT:0};
 S.minY=()=>2.2+3.7*A.gear.v;
+S.paused=false;let uiNow=0;
+function togglePause(){
+  S.paused=!S.paused;
+  $('pauseBtn').textContent=S.paused?'Resume':'Pause';
+  $('ptag').style.display=S.paused?'block':'none';
+  document.body.classList.toggle('paused',S.paused);
+  if(AC){if(S.paused)AC.suspend();else AC.resume();}
+}
+addEventListener('keydown',e=>{
+  if(e.code!=='Space')return;
+  const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT')return;
+  e.preventDefault();if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  togglePause();
+});
 let demo=false,demoI=0,demoOn=false;
 
 function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';S.toastT=2.2;}
@@ -236,10 +277,10 @@ function takeoff(){if(S.mode!=='parked'||!S.ground){toast('Aircraft must be park
 function climb(t){if(S.mode!=='flight'){toast('Take off first');return;}S.climbT=t;S.descT=0;}
 function descend(t){if(S.mode!=='flight'){toast('Take off first');return;}S.descT=t;S.climbT=0;}
 function turn(d,t){if(S.mode!=='flight'){toast('Take off first');return;}S.turnDir=d;S.turnT=t;}
-function land(){if(S.mode!=='flight'){toast('You can land only during flight');return;}S.mode='landing';S.final=false;S.climbT=S.descT=S.turnT=0;A.gear.t=1;A.flaps.t=1;}
+function land(){if(S.mode!=='flight'){toast('You can land only during flight');return;}S.mode='landing';S.final=false;S.climbT=S.descT=S.turnT=0;toast('Autopilot landing: flying back to the runway');}
 function resetSim(){
   Object.assign(S,{x:-60,y:5.9,z:0,h:0,pitch:0,roll:0,spd:0,ground:true,mode:'parked',climbT:0,descT:0,turnT:0,turnDir:0,final:false,stopped:false,P:0,reliefT:0});
-  ORDER.forEach(k=>{A[k].v=A[k].t=A[k].d0;A[k].mv=false;});demo=false;
+  ORDER.forEach(k=>{A[k].v=A[k].t=A[k].d0;A[k].mv=false;A[k].rel=0;A[k].hu=0;A[k].P=0;});demo=false;
 }
 const DEMO=[
   {a:()=>takeoff(),u:()=>S.mode==='flight'},
@@ -292,6 +333,11 @@ function step(dt){
     A.ail.t=-clamp(angd(dh,S.h)*1.5,-1,1);A.rud.t=A.ail.t*0.5;
     const yT=S.final?Math.max(S.minY()-3,Math.min(110,S.minY()+(60-S.x)*0.075-4)):110;
     A.elev.t=clamp((yT-S.y)*0.012,-0.12,0.2)/0.28;
+    if(S.final){
+      const tGo=(60-S.x)/Math.max(S.spd,30);
+      if(tGo<(1-A.gear.v)/(A.gear.s*0.4*S.flow)+4)A.gear.t=1;
+      if(tGo<(1-A.flaps.v)/(A.flaps.s*0.4*S.flow)+4)A.flaps.t=1;
+    }
     S.spd+=(65-S.spd)*Math.min(1,dt*0.5);
     if(S.y<=S.minY()){S.y=S.minY();S.ground=true;A.spoil.t=1;A.brake.t=1;A.rev.t=1;A.ail.t=0;A.rud.t=0;A.elev.t=0;}
   }else if(S.mode==='landing'&&S.ground){
@@ -304,10 +350,11 @@ function step(dt){
   let anyMv=false;
   ORDER.forEach(k=>{
     const a=A[k],was=a.mv;
+    a.rel=Math.max(0,a.rel-dt);
     if(S.pump&&Math.abs(a.t-a.v)>1e-4){
-     const d=a.s*S.flow*0.4*dt;a.v+=Math.sign(a.t-a.v)*Math.min(d,Math.abs(a.t-a.v));a.mv=true;anyMv=true;
+      const d=a.s*S.flow*0.4*dt;a.v+=Math.sign(a.t-a.v)*Math.min(d,Math.abs(a.t-a.v));a.mv=true;anyMv=true;
     }else a.mv=false;
-    if(was&&!a.mv&&(a.v<=a.r[0]+1e-3||a.v>=a.r[1]-1e-3))S.reliefT=0.8;
+    if(was&&!a.mv&&(a.v<=a.r[0]+1e-3||a.v>=a.r[1]-1e-3)){S.reliefT=0.8;a.rel=0.8;}
   });
   const pt=S.reliefT>0?215:(anyMv?192:206);
   S.P+=((S.pump?pt:0)-S.P)*Math.min(1,dt*4);
@@ -327,54 +374,53 @@ function step(dt){
 function phaseName(){
   if(S.mode==='parked')return S.stopped?'Landed and stopped':'Parked on runway';
   if(S.mode==='takeoff')return S.ground?(S.spd<S.vr?'Take-off roll':'Rotation (nose up)'):'Initial climb (gear retracting)';
-  if(S.mode==='landing')return S.ground?'Landing rollout':(S.final?'Final approach':'Joining approach path');
+  if(S.mode==='landing')return S.ground?'Landing rollout':(S.final?'Final approach':'Flying back to runway (fast-forward)');
   if(S.turnT>0)return S.turnDir>0?'Turning left':'Turning right';
   if(S.climbT>0)return 'Climbing (elevator up)';
   if(S.descT>0)return 'Descending (elevator down)';
   return 'Level flight';
 }
 
-/* ---------- 2D circuit update ---------- */
-function fl(id,on,rev){const c=$(id).classList;c.toggle('fl',!!on);c.toggle('rev',!!rev);}
+/* ---------- Update the 8 circuit windows ---------- */
+function fl(el,on,rev){const c=el.classList;c.toggle('fl',!!on);c.toggle('rev',!!rev);}
 function updCircuit(){
-    const k=ORDER.find(x=>A[x].mv);
-  if(k){S.cur=k;S.curExt=A[k].t>=A[k].v;S.holdUntil=performance.now()+2000;}
-  const a=A[S.cur],ext=S.curExt!==false,flow=performance.now()<(S.holdUntil||0)&&S.pump;
-  fl('pSuc',flow);fl('pPump',flow);fl('pP',flow);fl('pT',flow);
-  fl('pA1',flow,!ext);fl('pA2',flow,!ext);fl('pB',flow,ext);
-  fl('pRel',S.reliefT>0);fl('pRelOut',S.reliefT>0);
-  $('sqL').setAttribute('fill',flow&&ext?'#ffe2b3':'#f4f6f8');
-  $('sqR').setAttribute('fill',flow&&!ext?'#ffe2b3':'#f4f6f8');
-  $('sqC').setAttribute('fill',flow?'#f4f6f8':'#ffe2b3');
-  const px=320+posN(a)*140;
-  $('pist').setAttribute('x1',px);$('pist').setAttribute('x2',px);
-  $('rod').setAttribute('x1',px);$('rod').setAttribute('x2',px+175);
-  $('rodEnd').setAttribute('x',px+175);
-  const ang=(-135+clamp(S.P/250,0,1)*270)*Math.PI/180;
-  $('needle').setAttribute('x2',130+10*Math.sin(ang));$('needle').setAttribute('y2',252-10*Math.cos(ang));
-  $('txtG').textContent='Pressure '+Math.round(S.P)+' bar';
-  $('txtC').textContent='Cylinder = '+a.n;
-  $('txtP').textContent='Pump '+(S.pump?'ON':'OFF');
-  $('txtF').textContent='Flow control valve x'+S.flow.toFixed(1);
-  $('txtK').textContent=S.pump?'Check valve':'Check valve (locked)';
-  $('relBox').setAttribute('fill',S.reliefT>0?'#ffd34d':'#f4f6f8');
-  $('pumpC').setAttribute('fill',S.pump?'#c8f2d8':'#f4c9c9');
-  let avg=0;ORDER.forEach(x=>avg+=posN(A[x]));avg/=ORDER.length;
-  const h=40*(0.85-0.3*avg);$('resLevel').setAttribute('height',h);$('resLevel').setAttribute('y',450-h);
+  const now=uiNow;
+  ORDER.forEach(k=>{
+    const a=A[k],e=E[k];
+    if(a.mv){a.hu=now+2000;a.ext=a.t>=a.v;}
+    const on=now<a.hu,flow=on&&S.pump,ext=a.ext!==false,rel=a.rel>0;
+    fl(e.pSuc,flow);fl(e.pPump,flow);fl(e.pP,flow);fl(e.pT,flow);
+    fl(e.pA1,flow,!ext);fl(e.pA2,flow,!ext);fl(e.pB,flow,ext);
+    fl(e.pRel,rel);fl(e.pRelOut,rel);
+    e.sqL.setAttribute('fill',flow&&ext?'#ffe2b3':'#f4f6f8');
+    e.sqR.setAttribute('fill',flow&&!ext?'#ffe2b3':'#f4f6f8');
+    e.sqC.setAttribute('fill',flow?'#f4f6f8':'#ffe2b3');
+    const p=posN(a),px=300+p*130;
+    e.pist.setAttribute('x1',px);e.pist.setAttribute('x2',px);
+    e.rod.setAttribute('x1',px);e.rod.setAttribute('x2',px+185);
+    e.rodEnd.setAttribute('x',px+185);
+    a.P+=((!S.pump?0:(rel?215:(a.mv?192:206)))-a.P)*0.15;
+    const ang=(-135+clamp(a.P/250,0,1)*270)*Math.PI/180;
+    e.needle.setAttribute('x2',95+9*Math.sin(ang));e.needle.setAttribute('y2',204-9*Math.cos(ang));
+    e.txtG.textContent='Pressure '+Math.round(a.P)+' bar';
+    e.txtP.textContent='Pump '+(S.pump?'ON':'OFF');
+    e.txtF.textContent='Flow control valve x'+S.flow.toFixed(1);
+    e.txtK.textContent=S.pump?'Check valve':'Check valve (locked)';
+    e.relBox.setAttribute('fill',rel?'#ffd34d':'#f4f6f8');
+    e.pumpC.setAttribute('fill',S.pump?'#c8f2d8':'#f4c9c9');
+    const h=25*(0.85-0.3*p);e.resLevel.setAttribute('height',h);e.resLevel.setAttribute('y',372-h);
+    e.card.classList.toggle('on',on);
+    e.badge.textContent=on?'ACTIVE':'locked';
+    e.bar.style.width=(p*100)+'%';
+  });
 }
 
 function updUI(){
   $('phase').textContent=phaseName();
   $('note').textContent=NOTES[S.mode];
-   const nowT=performance.now();ORDER.forEach(k=>{if(A[k].mv)A[k].hu=nowT+2000;});
-  const act=ORDER.filter(k=>nowT<(A[k].hu||0)).map(k=>A[k].n);
+  const nowT=uiNow;
+  const act=ORDER.filter(k=>nowT<A[k].hu).map(k=>A[k].n);
   $('now').textContent=act.length?'Hydraulics working now: '+act.join(', '):(S.pump?'Nothing moving: DCV neutral, check valve holds the oil.':'Pump OFF: check valve is holding every actuator in place.');
-  ORDER.forEach(k=>{
-    const a=A[k],c=$('c_'+k);
-       c.classList.toggle('on',nowT<(a.hu||0));
-    c.querySelector('b').style.width=(posN(a)*100)+'%';
-       c.querySelector('small').textContent=nowT<(a.hu||0)?'ACTIVE':'locked';
-  });
   $('hud').innerHTML='Altitude: '+Math.max(0,S.y-5.9).toFixed(0)+' m<br>Speed: '+(S.spd*3.6).toFixed(0)+' km/h<br>Pitch: '+(S.pitch*57.3).toFixed(0)+'&deg; &nbsp; Roll: '+(S.roll*57.3).toFixed(0)+'&deg;';
 }
 
@@ -399,10 +445,11 @@ function render(dt){
 $('pumpSw').addEventListener('change',e=>S.pump=e.target.checked);
 $('flowSl').addEventListener('input',e=>S.flow=parseFloat(e.target.value));
 $('spdSel').addEventListener('change',e=>S.tscale=parseInt(e.target.value,10));
+
 /* ---------- Sound (Web Audio, no files needed) ---------- */
 let AC=null,snd={},muted=false;
 function initSound(){
-  if(AC){if(AC.state==='suspended')AC.resume();return;}
+  if(AC){if(AC.state==='suspended'&&!S.paused)AC.resume();return;}
   try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
   const master=AC.createGain();master.gain.value=0.5;master.connect(AC.destination);snd.master=master;
   const nb=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=nb.getChannelData(0);
@@ -459,11 +506,17 @@ function updSound(){
   if(S.ground&&!snd.wasGround&&S.mode==='landing'){thump(70,0.5,0.9);burst(0.6,1800,3,0.3);}
   snd.wasGround=S.ground;
 }
+
 let last=performance.now();
 function loop(now){
   const dt=Math.min(0.05,(now-last)/1000);last=now;
-  for(let i=0;i<S.tscale;i++)step(dt);
- updCircuit();updUI();render(dt);updSound();
+  if(!S.paused){
+    uiNow+=dt*1000;
+    const n=S.tscale*((S.mode==='landing'&&!S.ground&&!S.final)?4:1);
+    for(let i=0;i<n;i++)step(dt);
+  }
+  updCircuit();updUI();render(dt);
+  if(!S.paused)updSound();
   requestAnimationFrame(loop);
 }
 resize();requestAnimationFrame(loop);
